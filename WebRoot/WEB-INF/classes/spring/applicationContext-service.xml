@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="userService" class="com.scme.hospitalsys.serviceimpl.UserServiceImpl"></bean>
+	<bean id="hospitalService" class="com.scme.hospitalsys.serviceimpl.HospitalServiceImpl"></bean>
+	<bean id="deptService" class="com.scme.hospitalsys.serviceimpl.DeptServiceImpl"></bean>
+	<bean id="medicinerService" class="com.scme.hospitalsys.serviceimpl.MedicinerServiceImpl"></bean>
+	<bean id="appointmentService" class="com.scme.hospitalsys.serviceimpl.AppointmentServiceImpl"></bean>
+	
+</beans>

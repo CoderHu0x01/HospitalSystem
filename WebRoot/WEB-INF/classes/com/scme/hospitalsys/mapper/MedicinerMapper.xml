@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd" >
+<mapper namespace="com.scme.hospitalsys.mapper.MedicinerMapper">
+
+	<insert id="addMediciner" parameterType="com.scme.hospitalsys.pojo.Mediciner">
+  		insert into mediciner values(null,#{m_name},#{title},#{m_spec},#{surgery_weekday},#{limit_visits},#{med_hospatil.h_name},#{med_dept.d_name})
+  	</insert>
+  	
+  	<select id="findAppoCount" parameterType="java.lang.String" resultType="java.lang.Integer">
+  		select count(a.aid) from mediciner as m,appointment as a where m.mid=a.m_id and m_name=#{m_name}
+  	</select>
+  	
+  	
+  	
+  	<select id="findAllAppo" resultType="com.scme.hospitalsys.pojo.Mediciner">
+  		select m.m_name,m.title,m.hospital,count(a.aid) as num  from mediciner as m,appointment as a 
+  		where m.mid=a.m_id  order by num
+  	</select>
+  	
+  	
+  	
+  	<resultMap type="com.scme.hospitalsys.pojo.Mediciner" id="medicinerResultMap">
+  		<id column="mid" property="mid"/>
+  		<result column="m_name" property="m_name"/>
+  		<result column="title" property="title"/>
+  		<result column="surgery_weekday" property="surgery_weekday"/>
+  		<result column="limit_visits" property="limit_visits"/>
+  		<association property="med_hospatil" javaType="com.scme.hospitalsys.pojo.Hospatil">
+  			<id column="hid" property="hid"/>
+	  		<result column="h_name" property="h_name"/>
+	  		<result column="address" property="address"/>
+  		</association>
+  		<association property="med_dept" javaType="com.scme.hospitalsys.pojo.Dept">
+  			<id column="did" property="did"/>
+	  		<result column="d_name" property="d_name"/>
+	  		<result column="dpname" property="parentDept.d_name"/>
+	  		<result column="d_spec" property="d_spec"/>
+  		</association>
+  	</resultMap>
+  	<select id="findAllMed" resultMap="medicinerResultMap"> 
+  		SELECT m.mid,h.hid,d.did, m.m_name,m.title,m.surgery_weekday,m.limit_visits,h.h_name,h.address,d.d_name,dp.d_name as dpname,d.d_spec 
+		FROM mediciner as m,hospital AS h,dept as d,dept as dp  WHERE 
+		m.hospital=h.h_name AND m.dept=d.d_name AND dp.p_did=d.did ORDER BY m.hospital,m.dept
+  	</select>
+  	
+  	<sql id="sql_column">
+  		mid,m_name,gender,title,m_spec,surgery_weekday,limit_visits,hospital,dept
+  	</sql>
+  	
+  	<sql id="sql_where_column">
+  		<choose>
+  			<when test="mid!=null and mid!=''">
+  				m.mid=#{mid}
+  			</when>
+  			<when test="m_name!=null and m_name!=''">
+  				m.m_name=#{m_name}
+  			</when>
+  			<when test="title!=null and title!=''">
+  				m.title=#{title}
+  			</when>
+  			<when test="m_spec!=null and m_spec!=''">
+  				m.m_spec=#{m_spec}
+  			</when>
+  			<when test="surgery_weekday!=null and surgery_weekday!=''">
+  				m.surgery_weekday=#{surgery_weekday}
+  			</when>
+  			<when test="limit_visits!=null and limit_visits!=''">
+  				m.limit_visits=#{limit_visits}
+  			</when>
+  			<when test="hospital!=null and hospital!=''">
+  				m.hospital=#{hospital}
+  			</when>
+  			<when test="dept!=null and dept!=''">
+  				m.dept=#{dept}
+  			</when>
+  			<when test="med_dept!=null">
+  				d.d_name=#{med_dept.d_name}
+  			</when>
+  		</choose>
+  	</sql>
+  	
+  	<select id="findAllMediciner" resultType="mediciner">
+  		SELECT 
+  		<include refid="sql_column"/>
+  		 FROM mediciner 
+  	</select>
+  	
+  	<select id="findMedCount" resultType="java.lang.Integer">
+  		SELECT 
+  		count(*) as count
+  		FROM mediciner 
+  	</select>
+  	
+  	<select id="findAllMedGroupTitle" resultType="mediciner">
+  		SELECT 
+  		title
+  		 FROM mediciner 
+  		 group by title
+  	</select>
+  	
+  	<select id="findMedByWhere" parameterType="mediciner" resultType="mediciner">
+  		SELECT 
+			<include refid="sql_column"/>
+  		 FROM  dept as d,dept as dp,mediciner as m
+		WHERE  d.did=dp.p_did AND m.dept=dp.d_name
+		AND 
+		<include refid="sql_where_column"/>
+  	</select>
+</mapper>

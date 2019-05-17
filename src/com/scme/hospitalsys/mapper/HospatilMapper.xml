@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd" >
+<mapper namespace="com.scme.hospitalsys.mapper.HospatilMapper">
+	
+	<sql id="sql_column">
+		hid,h_name,address,grade
+	</sql>
+	
+	
+	<sql id="sql_column_hos_medcount">
+		h.hid,h.h_name,h.address,h.grade,COUNT(m.m_name) as count
+	</sql>
+	
+	<sql id="sql_where_choose">
+		<choose>
+			<when test="hid!=null and hid!=''">
+				hid=#{hid}
+			</when>
+			<when test="h_name!=null and h_name!=''">
+				h_name=#{h_name}
+			</when>
+			<when test="address!=null and address!=''">
+				address=#{address}
+			</when>
+			<when test="grade!=null and grade!=''">
+				grade=#{grade}
+			</when>
+		</choose>
+	</sql>
+
+  	
+  	<insert id="addHospatil" parameterType="com.scme.hospitalsys.pojo.Hospatil">
+  		insert into hospital values(null,#{h_name},#{address},#{grade})
+  	</insert>
+  	
+  	<select id="findAllHos" resultType="hospatilVo">
+  		SELECT 
+  		<include refid="sql_column_hos_medcount"/>
+  		 FROM 
+  		hospital as h,mediciner as m WHERE h.h_name=m.hospital GROUP BY h.h_name
+  	</select>
+  	
+  	<!-- <select id="findHosByGrade" parameterType="java.lang.String" resultType="hospatilVo">
+  		select
+  		<include refid="sql_column"/>
+  		from  hospital 
+  		where grade=#{grade}
+  	</select> -->
+  	
+  	<!--通用条件查询  -->
+  	<select id="findHosByCommonWhere" parameterType="hospatil" resultType="hospatilVo">
+  		SELECT 
+  		<include refid="sql_column_hos_medcount"/>
+  		 FROM 
+  		hospital as h,mediciner as m WHERE h.h_name=m.hospital
+  		and
+  		<include refid="sql_where_choose"/>
+  		 GROUP BY h.h_name
+  	</select>
+  	
+  	<select id="findGrade" resultType="hospatil">
+  		SELECT grade FROM hospital GROUP BY grade
+  	</select>
+  	
+  	<select id="findHosCount" resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM hospital 
+  	</select>
+  	
+  	
+  	<select id="findHosInfo" resultType="hospatilVo">
+  		SELECT sum(visit_seq) as visitCount,
+  		<include refid="sql_column"/>
+  		FROM
+  		appointment as a,mediciner as m,hospital as h
+		WHERE a.m_id=m.mid and m.hospital=h.h_name GROUP BY h.h_name
+  	</select>
+  	
+  	<!--查询累计预约人数  -->
+  	<select id="findAppCount" resultType="java.lang.Integer">
+  		SELECT sum(visit_seq) FROM appointment
+  	</select>
+  	
+  	<!-- 查询可预约医生数 -->
+  	<select id="findMedCount" resultType="hospatilVo">
+  		SELECT
+  			<include refid="sql_column"/>
+  		FROM 
+			appointment as a,mediciner as m,hospital as h
+			WHERE 
+			a.m_id=m.mid and m.hospital=h.h_name AND a.visit_seq&lt;m.limit_visits GROUP BY h.h_name
+  	</select>
+  	
+</mapper>

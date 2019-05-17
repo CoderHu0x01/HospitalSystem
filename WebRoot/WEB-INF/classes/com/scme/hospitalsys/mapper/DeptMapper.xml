@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd" >
+<mapper namespace="com.scme.hospitalsys.mapper.DeptMapper">
+	
+	<!-- 增加一级科室信息 -->
+  	<insert id="addDept" parameterType="com.scme.hospitalsys.pojo.Dept">
+  		insert into dept values(null,#{d_name},#{d_spec},null)
+  	</insert>
+  	
+  	<!-- 增加二级科室信息 -->
+  	<insert id="addPartnetDept" parameterType="com.scme.hospitalsys.pojo.Dept">
+  		insert into dept values(null,#{d_name},#{d_spec},#{parentDept.did})
+  	</insert>
+  	
+  	<!-- 根据科明加载科室 -->
+  	<select id="findDeptByDname" parameterType="String" resultType="com.scme.hospitalsys.pojo.Dept">
+  		select * from dept where d_name=#{d_name}
+  	</select>
+  	
+  	<!--查询一级科室信息  -->
+  	<select id="findDeptByOne" parameterType="java.lang.Integer"  resultType="dept">
+  		SELECT d_name,d_spec FROM dept WHERE p_did is null
+  	</select>
+  	
+  	
+  	<resultMap type="com.scme.hospitalsys.pojo.Dept" id="deptResultMap">
+  		<result column="did" property="did"/>
+  		<result column="d_name" property="d_name"/>
+  		<result column="d_spec" property="d_spec"/>
+  		<collection property="listParDept" ofType="com.scme.hospitalsys.pojo.Dept">
+  			<result column="dp_id" property="did"/>
+	  		<result column="dpName" property="d_name"/>
+	  		<result column="dpSpec" property="d_spec"/>
+  		</collection>
+  	</resultMap>
+  	
+  	<!-- 查询所有科室信息 -->
+  	<select id="findAllDept"  resultMap="deptResultMap">
+  		SELECT 
+  			d.did,d.d_name,d.d_spec,dp.did as dp_id,dp.d_name as dpName,dp.d_spec as dpSpec 
+  		FROM 
+  			dept as d,dept as dp WHERE d.did=dp.p_did
+  	</select>
+  	
+  	
+</mapper>
