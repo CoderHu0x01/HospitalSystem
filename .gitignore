@@ -4,6 +4,7 @@ HELP.md
 
 ##eclipse
 /bin/
+/WebRoot/WEB-INF/classes
 
 ### STS ###
 .apt_generated
